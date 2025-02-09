@@ -4,63 +4,238 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Task;
+use App\Http\Resources\TaskResource;
+use Illuminate\Support\Facades\DB;
+use App\Http\Requests\TaskRequest;
+
+
 
 class TaskController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * @OA\Get(
+     *     path="/tasks",
+     *     summary="Liste des tâches",
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="Filtrer par statut",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="priority",
+     *         in="query",
+     *         description="Filtrer par priorité",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="due_date",
+     *         in="query",
+     *         description="Filtrer par date d'échéance",
+     *         required=false,
+     *         @OA\Schema(type="string", format="date")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Liste des tâches",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Task"))
+     *     )
+     * )
      */
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(Task::where('user_id', auth()->id())->orWhere('assigned_to', auth()->id())->get());
+        $query = Task::with(['creator', 'assignee'])
+            ->withCount(['comments', 'attachments'])
+            ->where(function ($query) {
+                $query->where('created_by', auth()->id())
+                    ->orWhere('assigned_to', auth()->id());
+            });
+
+        // Filtres
+        if ($request->has('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->has('priority')) {
+            $query->where('priority', $request->priority);
+        }
+
+        if ($request->has('due_date')) {
+            $query->whereDate('due_date', $request->due_date);
+        }
+
+        $tasks = $query->orderBy('due_date')->paginate(10);
+
+        return TaskResource::collection($tasks);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * @OA\Post(
+     *     path="/tasks",
+     *     summary="Créer une nouvelle tâche",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/TaskRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Tâche créée",
+     *         @OA\JsonContent(ref="#/components/schemas/Task")
+     *     )
+     * )
      */
-    public function create()
+    public function store(TaskRequest $request)
     {
-        //
+        $task = DB::transaction(function () use ($request) {
+            $task = Task::create([
+                'title' => $request->title,
+                'description' => $request->description,
+                'due_date' => $request->due_date,
+                'priority' => $request->priority,
+                'status' => 'pending',
+                'created_by' => auth()->id(),
+                'assigned_to' => $request->assigned_to,
+            ]);
+            
+            return $task;
+        });
+
+        return new TaskResource($task->load(['creator', 'assignee']));
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @OA\Get(
+     *     path="/tasks/{task}",
+     *     summary="Afficher une tâche",
+     *     @OA\Parameter(
+     *         name="task",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Détails de la tâche",
+     *         @OA\JsonContent(ref="#/components/schemas/Task")
+     *     )
+     * )
      */
-    public function store(Request $request)
+    public function show(Task $task)
     {
-        $task = Task::create(array_merge($request->all(), ['user_id' => auth()->id()]));
-        return response()->json($task, 201);
+        $this->authorize('view', $task);
+
+        $task->load(['creator', 'assignee', 'comments.user', 'attachments.user'])
+            ->loadCount(['comments', 'attachments']);
+
+        return new TaskResource($task);
     }
 
     /**
-     * Display the specified resource.
+     * @OA\Put(
+     *     path="/tasks/{task}",
+     *     summary="Mettre à jour une tâche",
+     *     @OA\Parameter(
+     *         name="task",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/TaskRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Tâche mise à jour",
+     *         @OA\JsonContent(ref="#/components/schemas/Task")
+     *     )
+     * )
      */
-    public function show(string $id)
+    public function update(TaskRequest $request, Task $task)
     {
-        //
+        $this->authorize('update', $task);
+
+        $task = DB::transaction(function () use ($request, $task) {
+            $task->update([
+                'title' => $request->title,
+                'description' => $request->description,
+                'due_date' => $request->due_date,
+                'priority' => $request->priority,
+                'assigned_to' => $request->assigned_to,
+            ]);
+
+            // Gérer les notifications de mise à jour ici
+
+            return $task;
+        });
+
+        return new TaskResource($task->load(['creator', 'assignee']));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * @OA\Delete(
+     *     path="/tasks/{task}",
+     *     summary="Supprimer une tâche",
+     *     @OA\Parameter(
+     *         name="task",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Tâche supprimée",
+     *         @OA\JsonContent(type="object", @OA\Property(property="message", type="string"))
+     *     )
+     * )
      */
-    public function edit(string $id)
+    public function destroy(Task $task)
     {
-        //
+        $this->authorize('delete', $task);
+
+        DB::transaction(function () use ($task) {
+            $task->delete();
+        });
+
+        return response()->json(['message' => 'Task deleted successfully']);
     }
 
     /**
-     * Update the specified resource in storage.
+     * @OA\Patch(
+     *     path="/tasks/{task}/status",
+     *     summary="Mettre à jour le statut d'une tâche",
+     *     @OA\Parameter(
+     *         name="task",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", enum={"pending", "in_progress", "completed", "on_hold"})
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Statut mis à jour",
+     *         @OA\JsonContent(ref="#/components/schemas/Task")
+     *     )
+     * )
      */
-    public function update(Request $request, string $id)
+    public function updateStatus(Request $request, Task $task)
     {
-        //
-    }
+        $this->authorize('update', $task);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        $request->validate([
+            'status' => 'required|in:pending,in_progress,completed,on_hold'
+        ]);
+
+        $task->update(['status' => $request->status]);
+
+        return new TaskResource($task->load(['creator', 'assignee']));
     }
 }

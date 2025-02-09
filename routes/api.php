@@ -3,6 +3,14 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\{
+    AuthController,
+    TaskController,
+    CommentController,
+    TaskAttachmentController,
+    UserController
+};
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -14,11 +22,35 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
-Route::middleware('auth:api')->group(function () {
-    Route::get('/tasks', [TaskController::class, 'index']);
-    Route::post('/tasks', [TaskController::class, 'store']);
+Route::prefix('v1')->group(function () {
+    // Auth routes
+    Route::post('auth/register', [AuthController::class, 'register']);
+    Route::post('auth/login', [AuthController::class, 'login']);
+    
+    // Protected routes
+    Route::middleware('auth:sanctum')->group(function () {
+        // User routes
+        Route::get('user/profile', [UserController::class, 'profile']);
+        Route::put('user/profile', [UserController::class, 'update']);
+        Route::get('users', [UserController::class, 'index']);
+        
+        // Task routes
+        Route::apiResource('tasks', TaskController::class);
+        Route::put('tasks/{task}/status', [TaskController::class, 'updateStatus']);
+        
+        // Task comments
+        Route::get('tasks/{task}/comments', [CommentController::class, 'index']);
+        Route::post('tasks/{task}/comments', [CommentController::class, 'store']);
+        Route::put('tasks/comments/{comment}', [CommentController::class, 'update']);
+        Route::delete('tasks/comments/{comment}', [CommentController::class, 'destroy']);
+        
+        // Task attachments
+        Route::get('tasks/{task}/attachments', [TaskAttachmentController::class, 'index']);
+        Route::post('tasks/{task}/attachments', [TaskAttachmentController::class, 'store']);
+        Route::get('tasks/attachments/{attachment}/download', [TaskAttachmentController::class, 'download']);
+        Route::delete('tasks/attachments/{attachment}', [TaskAttachmentController::class, 'destroy']);
+        
+        // Logout
+        Route::post('auth/logout', [AuthController::class, 'logout']);
+    });
 });
