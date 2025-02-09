@@ -8,10 +8,139 @@
         "version": "1.0.0"
     },
     "paths": {
-        "/tasks": {
+        "/api/v1/auth/register": {
+            "post": {
+                "summary": "Enregistrer un nouvel utilisateur",
+                "operationId": "48e49e48019e8b141753cb515a26100b",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john.doe@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Utilisateur enregistré",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "user": {
+                                            "$ref": "#/components/schemas/User"
+                                        },
+                                        "token": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/login": {
+            "post": {
+                "summary": "Connexion d'un utilisateur",
+                "operationId": "5db09a35f965c6ca7529ed3c3cae8e21",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john.doe@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Utilisateur connecté",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "user": {
+                                            "$ref": "#/components/schemas/User"
+                                        },
+                                        "token": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/logout": {
+            "post": {
+                "summary": "Déconnexion de l'utilisateur",
+                "operationId": "8f1a443d39c3bf383f851fbb51253c64",
+                "responses": {
+                    "200": {
+                        "description": "Utilisateur déconnecté",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Successfully logged out"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/tasks": {
             "get": {
                 "summary": "Liste des tâches",
-                "operationId": "6a93d54730cde509d735e538ab6800f6",
+                "operationId": "4293c00a4cffdb881d9f6c2099875f96",
                 "parameters": [
                     {
                         "name": "status",
@@ -60,7 +189,7 @@
             },
             "post": {
                 "summary": "Créer une nouvelle tâche",
-                "operationId": "9b481c0ed5fdfa1a592d70ba39a348ee",
+                "operationId": "379ae513b47f83882f91f2b9143fc425",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -85,10 +214,10 @@
                 }
             }
         },
-        "/tasks/{task}": {
+        "/api/v1/tasks/{task}": {
             "get": {
                 "summary": "Afficher une tâche",
-                "operationId": "2d3bd1c8c8bbb942e64655b95d2ccd31",
+                "operationId": "e81754f67436bbe6c2fdd21fc7681eef",
                 "parameters": [
                     {
                         "name": "task",
@@ -114,7 +243,7 @@
             },
             "put": {
                 "summary": "Mettre à jour une tâche",
-                "operationId": "21fde229ffe8d43f5907fdc299a6e0be",
+                "operationId": "7ca08fc4397f1b44d058d9a8571df4e3",
                 "parameters": [
                     {
                         "name": "task",
@@ -150,7 +279,7 @@
             },
             "delete": {
                 "summary": "Supprimer une tâche",
-                "operationId": "2e76d38ee629d5be516c498ed02ff818",
+                "operationId": "c02800103c68f71d9c6e1646ac17ee8d",
                 "parameters": [
                     {
                         "name": "task",
@@ -180,10 +309,10 @@
                 }
             }
         },
-        "/tasks/{task}/status": {
+        "/api/v1/tasks/{task}/status": {
             "patch": {
                 "summary": "Mettre à jour le statut d'une tâche",
-                "operationId": "526bb966ded747ac53f34559ae67ff6f",
+                "operationId": "fa7333c0544a0bb2a20cd36700109d68",
                 "parameters": [
                     {
                         "name": "task",
@@ -301,6 +430,29 @@
                     },
                     "assigned_to": {
                         "type": "integer"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "User": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
                     },
                     "created_at": {
                         "type": "string",

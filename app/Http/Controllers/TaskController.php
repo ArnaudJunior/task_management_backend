@@ -15,7 +15,7 @@ class TaskController extends Controller
 {
     /**
      * @OA\Get(
-     *     path="/tasks",
+     *     path="/api/v1/tasks",
      *     summary="Liste des tâches",
      *     @OA\Parameter(
      *         name="status",
@@ -74,7 +74,7 @@ class TaskController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/tasks",
+     *     path="/api/v1/tasks",
      *     summary="Créer une nouvelle tâche",
      *     @OA\RequestBody(
      *         required=true,
@@ -108,7 +108,7 @@ class TaskController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/tasks/{task}",
+     *     path="/api/v1/tasks/{task}",
      *     summary="Afficher une tâche",
      *     @OA\Parameter(
      *         name="task",
@@ -135,7 +135,7 @@ class TaskController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/tasks/{task}",
+     *     path="/api/v1/tasks/{task}",
      *     summary="Mettre à jour une tâche",
      *     @OA\Parameter(
      *         name="task",
@@ -177,7 +177,7 @@ class TaskController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/tasks/{task}",
+     *     path="/api/v1/tasks/{task}",
      *     summary="Supprimer une tâche",
      *     @OA\Parameter(
      *         name="task",
@@ -205,7 +205,7 @@ class TaskController extends Controller
 
     /**
      * @OA\Patch(
-     *     path="/tasks/{task}/status",
+     *     path="/api/v1/tasks/{task}/status",
      *     summary="Mettre à jour le statut d'une tâche",
      *     @OA\Parameter(
      *         name="task",

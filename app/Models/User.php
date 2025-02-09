@@ -9,6 +9,20 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+
+    /**
+    * @OA\Schema(
+    *     schema="User",
+    *     type="object",
+    *     @OA\Property(property="id", type="integer"),
+    *     @OA\Property(property="name", type="string"),
+    *     @OA\Property(property="email", type="string", format="email"),
+    *     @OA\Property(property="created_at", type="string", format="date-time"),
+    *     @OA\Property(property="updated_at", type="string", format="date-time")
+    * )
+    */
+
+
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
