@@ -20,9 +20,12 @@ use Illuminate\Routing\Controller as BaseController;
  *         url="http://localhost:8000/api"
  *     ),
  * )
- * 
- * 
- * 
+ * @OA\SecurityScheme(
+ *     securityScheme="bearerAuth",
+ *     type="http",
+ *     scheme="bearer",
+ *     bearerFormat="JWT"
+ * )
  */
 
 

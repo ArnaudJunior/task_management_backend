@@ -13,7 +13,7 @@ class TaskCommentPolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return $user->id === $task->user_id || $task->assignee()->where('id', $user->id)->exists();
     }
 
     /**
@@ -21,7 +21,7 @@ class TaskCommentPolicy
      */
     public function view(User $user, Comment $comment): bool
     {
-        //
+        return $user->id === $comment->user_id;
     }
 
     /**
@@ -29,7 +29,7 @@ class TaskCommentPolicy
      */
     public function create(User $user): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -37,7 +37,7 @@ class TaskCommentPolicy
      */
     public function update(User $user, Comment $comment): bool
     {
-        //
+        return $user->id === $comment->user_id;
     }
 
     /**
@@ -45,7 +45,7 @@ class TaskCommentPolicy
      */
     public function delete(User $user, Comment $comment): bool
     {
-        //
+        return $user->id === $comment->user_id;
     }
 
     /**
@@ -53,7 +53,7 @@ class TaskCommentPolicy
      */
     public function restore(User $user, Comment $comment): bool
     {
-        //
+        return $this->delete($user, $comment);
     }
 
     /**
@@ -61,6 +61,6 @@ class TaskCommentPolicy
      */
     public function forceDelete(User $user, Comment $comment): bool
     {
-        //
+        return $this->delete($user, $comment);
     }
 }

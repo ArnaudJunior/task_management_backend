@@ -8,6 +8,7 @@ use App\Models\Task;
 use App\Http\Resources\TaskResource;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\TaskRequest;
+Use App\Models\Comment;
 
 
 
@@ -17,6 +18,7 @@ class TaskController extends Controller
      * @OA\Get(
      *     path="/api/v1/tasks",
      *     summary="Liste des tâches",
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="status",
      *         in="query",
@@ -76,6 +78,7 @@ class TaskController extends Controller
      * @OA\Post(
      *     path="/api/v1/tasks",
      *     summary="Créer une nouvelle tâche",
+     *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(ref="#/components/schemas/TaskRequest")
@@ -110,6 +113,7 @@ class TaskController extends Controller
      * @OA\Get(
      *     path="/api/v1/tasks/{task}",
      *     summary="Afficher une tâche",
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="task",
      *         in="path",
@@ -137,6 +141,7 @@ class TaskController extends Controller
      * @OA\Put(
      *     path="/api/v1/tasks/{task}",
      *     summary="Mettre à jour une tâche",
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="task",
      *         in="path",
@@ -179,6 +184,7 @@ class TaskController extends Controller
      * @OA\Delete(
      *     path="/api/v1/tasks/{task}",
      *     summary="Supprimer une tâche",
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="task",
      *         in="path",
@@ -207,6 +213,7 @@ class TaskController extends Controller
      * @OA\Patch(
      *     path="/api/v1/tasks/{task}/status",
      *     summary="Mettre à jour le statut d'une tâche",
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="task",
      *         in="path",
