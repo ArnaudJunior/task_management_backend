@@ -26,6 +26,10 @@ Route::prefix('v1')->group(function () {
     // Auth routes
     Route::post('auth/register', [AuthController::class, 'register']);
     Route::post('auth/login', [AuthController::class, 'login']);
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/logout', [AuthController::class, 'logout']);
+        Route::get('/user', [AuthController::class, 'user']);
+    });
     
     // Protected routes
     Route::middleware('auth:sanctum')->group(function () {
@@ -51,6 +55,6 @@ Route::prefix('v1')->group(function () {
         Route::delete('tasks/attachments/{attachment}', [TaskAttachmentController::class, 'destroy']);
         
         // Logout
-        Route::post('auth/logout', [AuthController::class, 'logout']);
+        // Route::post('auth/logout', [AuthController::class, 'logout']);
     });
 });

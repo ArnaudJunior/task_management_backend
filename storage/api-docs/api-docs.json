@@ -137,6 +137,34 @@
                 }
             }
         },
+        "/api/v1/user": {
+            "get": {
+                "summary": "Info utilisateur connecté",
+                "operationId": "6804f9f92bfdc4d8fe300f2c5cc35d19",
+                "responses": {
+                    "200": {
+                        "description": "Utilisateur connecté",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "user": {
+                                            "$ref": "#/components/schemas/User"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/v1/tasks/{task}/comments": {
             "get": {
                 "summary": "Liste des commentaires",

@@ -121,4 +121,25 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()->delete();
         return response()->json(['message' => 'Successfully logged out']);
     }
+
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/user",
+     *     summary="Info utilisateur connecté",
+     *      security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Utilisateur connecté",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="user", ref="#/components/schemas/User"),
+     *         )
+     *     )
+     * )
+     */
+
+    public function user(Request $request)
+    {
+        return response()->json($request->user());
+    }
 }
