@@ -142,4 +142,59 @@ class AuthController extends Controller
     {
         return response()->json($request->user());
     }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/all/users",
+     *     summary="Récupérer tous les utilisateurs",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Liste des utilisateurs",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/User"))
+     *     )
+     * )
+     */
+    public function index()
+    {
+        $users = User::all();
+        return UserResource::collection($users);
+    }
+
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/users/{id}",
+     *     summary="Récupérer un utilisateur par ID",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Détails de l'utilisateur",
+     *         @OA\JsonContent(ref="#/components/schemas/User")
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Utilisateur non trouvé",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="User not found")
+     *         )
+     *     )
+     * )
+     */
+    public function show($id)
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        return new UserResource($user);
+    }
 }
