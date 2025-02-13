@@ -31,7 +31,7 @@ If you have not done so already, you need to have standalone copy of this repo o
 1. `php artisan migrate` to migrate datase
 1. `php artisan serve --host 0.0.0.0` to make connection with your android emulator
 1. [you can launch the api documentation on](http://localhost:8000/api/documentation#/)
-1. Due to some bugs you may manualy create task on swagger documentation et visualize on the emulator.
+1. Due to some bugs you may manualy create task on swagger documentation and visualize on the emulator.
 
 ## Questions
 
